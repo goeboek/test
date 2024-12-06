@@ -8,7 +8,7 @@ import (
 
 func main() {
     // Define the URL for the API endpoint
-    url := "https://xyz.accurate.id/accurate/api/your_endpoint" // Replace with the actual endpoint
+    url := "https://xyz.accurate.id/accurate//api/auth-info.do" // Replace with the actual endpoint
 
     // Create a new HTTP request
     req, err := http.NewRequest("GET", url, nil)
@@ -18,8 +18,8 @@ func main() {
     }
 
     // Set the headers
-    req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN") // Replace with your actual token
-    req.Header.Set("X-Session-ID", "YOUR_SESSION_ID") // Replace with your actual session ID
+    req.Header.Set("Authorization", "3f337af883d45a27dc1b7c131035708c") // Replace with your actual token
+    req.Header.Set("X-Session-ID", "1ac49467-c4c4-4096-a654-875d1486e5a8") // Replace with your actual session ID
 
     // Create an HTTP client and make the request
     client := &http.Client{}
