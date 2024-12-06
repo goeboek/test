@@ -51,11 +51,14 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Response Status: %s", resp.Status)
 }
 
-func main() {
-    http.HandleFunc("/login", loginHandler)
-    http.HandleFunc("/api/auth/callback", callbackHandler)
-    fmt.Println("Server is running on :3000")
-    if err := http.ListenAndServe(":3000", nil); err != nil {
-        fmt.Println("Failed to start server:", err)
+// Exported function for Vercel
+func Handler(w http.ResponseWriter, r *http.Request) {
+    switch r.URL.Path {
+    case "/login":
+        loginHandler(w, r)
+    case "/api/auth/callback":
+        callbackHandler(w, r)
+    default:
+        http.NotFound(w, r)
     }
 }
