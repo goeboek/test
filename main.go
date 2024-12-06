@@ -1,64 +1,42 @@
 package main
 
 import (
-    "context"
     "fmt"
+    "io/ioutil"
     "net/http"
-    "golang.org/x/oauth2"
-    "golang.org/x/oauth2/github"
 )
 
-var (
-    oauth2Config = &oauth2.Config{
-        ClientID:     "YOUR_CLIENT_ID",
-        ClientSecret: "YOUR_CLIENT_SECRET",
-        RedirectURL:  "https://your-app-name.vercel.app/api/auth/callback",
-        Scopes:       []string{"user:email"},
-        Endpoint:     github.Endpoint,
-    }
-)
+func main() {
+    // Define the URL for the API endpoint
+    url := "https://xyz.accurate.id/accurate/api/your_endpoint" // Replace with the actual endpoint
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-    url := oauth2Config.AuthCodeURL("state")
-    http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-func callbackHandler(w http.ResponseWriter, r *http.Request) {
-    ctx := context.Background()
-    code := r.URL.Query().Get("code")
-    if code == "" {
-        http.Error(w, "Code not found", http.StatusBadRequest)
+    // Create a new HTTP request
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        fmt.Println("Error creating request:", err)
         return
     }
 
-    token, err := oauth2Config.Exchange(ctx, code)
-    if err != nil {
-        http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
+    // Set the headers
+    req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN") // Replace with your actual token
+    req.Header.Set("X-Session-ID", "YOUR_SESSION_ID") // Replace with your actual session ID
 
-    // Use the token to get user information
-    client := oauth2Config.Client(ctx, token)
-    resp, err := client.Get("https://api.github.com/user/emails")
+    // Create an HTTP client and make the request
+    client := &http.Client{}
+    resp, err := client.Do(req)
     if err != nil {
-        http.Error(w, "Failed to get user info: "+err.Error(), http.StatusInternalServerError)
+        fmt.Println("Error making request:", err)
         return
     }
     defer resp.Body.Close()
 
-    // Handle the response (e.g., read the body, parse JSON, etc.)
-    // For demonstration, we'll just print the response status
-    fmt.Fprintf(w, "Response Status: %s", resp.Status)
-}
-
-// Exported function for Vercel
-func Handler(w http.ResponseWriter, r *http.Request) {
-    switch r.URL.Path {
-    case "/login":
-        loginHandler(w, r)
-    case "/api/auth/callback":
-        callbackHandler(w, r)
-    default:
-        http.NotFound(w, r)
+    // Read and print the response
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        fmt.Println("Error reading response:", err)
+        return
     }
+
+    fmt.Println("Response Status:", resp.Status)
+    fmt.Println("Response Body:", string(body))
 }
